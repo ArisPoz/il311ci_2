@@ -51,7 +51,7 @@ var incidentSchema = mongoose.Schema({
     },
     upvotes: [{
         name: String,
-        telephone: String,
+        phone: String,
         address: String
     }]
 });

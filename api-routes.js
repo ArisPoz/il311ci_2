@@ -18,9 +18,23 @@ router.get('/', function (req, res) {
 // Incident routes
 router.get('/incidents', incidnetController.index);
 router.post('/incidents', incidnetController.new);
-router.get('/incident/:id', incidnetController.view);
-router.patch('/incident/:id', incidnetController.update);
-router.put('/incident/:id', incidnetController.update);
-router.delete('/incident/:id', incidnetController.delete);
+router.get('/incidents/:id', incidnetController.view);
+router.patch('/incidents/:id', incidnetController.update);
+router.put('/incidents/:id', incidnetController.update);
+router.delete('/incidents/:id', incidnetController.delete);
+router.post('/incidents/vote/:id', incidnetController.vote);
+
+//queries
+router.post('/query1', incidnetController.query1);
+router.post('/query2', incidnetController.query2);
+router.post('/query3', incidnetController.query3);
+router.post('/query4', incidnetController.query4);
+router.post('/query5', incidnetController.query5);
+router.post('/query6', incidnetController.query6);
+router.post('/query7', incidnetController.query7);
+router.post('/query8', incidnetController.query8);
+router.post('/query9', incidnetController.query9);
+router.post('/query10', incidnetController.query10);
+router.post('/query11', incidnetController.query11);
 
 module.exports = router;

@@ -39,7 +39,15 @@ const persist = function(file) {
         incident.service_request_number = row["Service Request Number"];
         incident.type = row["Type of Service Request"];
         incident.location.street_address = row["Street Address"];
-        incident.location.zip_code = row["Zip Code"] ? row["Zip Code"] : row["ZIP"];
+
+        if (typeof row["Zip Code"] !== 'undefined') {
+            incident.location.zip_code = row["Zip Code"];
+        } else if (typeof row["ZIP"] !== 'undefined') {
+            incident.location.zip_code = row["ZIP"];
+        } else {
+            incident.location.zip_code = '-';
+        }
+
         incident.location.coordinates.x = row["X Coordinate"];
         incident.location.coordinates.y = row["Y Coordinate"];
         incident.location.position.latitude = row["Latitude"];

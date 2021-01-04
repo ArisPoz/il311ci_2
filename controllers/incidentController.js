@@ -113,3 +113,391 @@ exports.delete = function (req, res) {
         });
     });
 };
+
+exports.vote = function (req, res) {
+    let upvoter = {
+        name: req.body.name,
+        phone: req.body.phone,
+        address: req.body.address
+    }
+
+    Incident.findOneAndUpdate({_id: req.params.id}, {$push: {upvotes: upvoter}}, 
+        function (err, incident) {
+            incident.save(function (err) {
+            if (err)
+                res.json(err);
+            res.json({
+                message: 'Contact Info updated',
+                data: incident
+            });
+        });
+        }
+    );
+};
+
+exports.query1 = function (req, res) {
+    Incident.aggregate([
+        {
+            $match: {
+                creation_date: {
+                    $gte: new Date(req.body.date_from),
+                    $lte: new Date(req.body.date_to)
+                }
+            }
+        },
+        {
+            $group: 
+            {
+                _id: {type: "$type"}, 
+                count:{$sum:1}
+            }
+        }, 
+        {
+            $sort:{"count": -1}
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query2 = function (req, res) {
+    Incident.aggregate([
+        {
+            $match: {
+                type: req.body.type,
+                creation_date: {
+                    $gte: new Date(req.body.date_from),
+                    $lte: new Date(req.body.date_to)
+                }
+            }
+        },
+        {
+            $group: 
+            {
+                _id: {creation_date: "$creation_date"}, 
+                count:{$sum:1}
+            }
+        }, 
+        {
+            $sort:{"_id": 1}
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query3 = function (req, res) {
+    var day = new Date(req.body.date);
+    var nextDay = new Date(day);
+    nextDay.setDate(day.getDate() + 1);
+    Incident.aggregate([
+        {
+            $match: {
+                creation_date: {
+                    $gte: day,
+                    $lt: nextDay
+                }
+            }
+        },
+        {
+            $group: 
+            {
+                _id: {"zip_code": "$location.zip_code"}, 
+                count:{$sum:1}
+            }
+        }, 
+        {
+            $sort:{"_id": -1}
+        },
+        {
+            $limit: 3
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query4 = function (req, res) {
+    Incident.aggregate([
+        {
+            $match: {
+                type: req.body.type
+            }
+        },
+        {
+            $group: 
+            {
+                _id: {"ward": "$authority.ward"}, 
+                count:{$sum:1}
+            }
+        }, 
+        {
+            $sort:{"_id": 1}
+        },
+        {
+            $limit: 3
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query5 = function (req, res) {
+    Incident.aggregate([
+        {
+            $match: {
+                creation_date: {
+                    $gte: new Date(req.body.date_from),
+                    $lte: new Date(req.body.date_to)
+                }
+            }
+        },
+        {
+            $group: 
+            {
+                _id: {"type": "$type"}, 
+                average: {$avg: { $subtract: [{$ifNull:["$completion_date",0]}, 
+                {$ifNull:["$creation_date",0]}]}}
+            }
+        }, 
+        {
+            $sort:{"_id": -1}
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query6 = function (req, res) {
+    var day = new Date(req.body.date);
+    var nextDay = new Date(day);
+    nextDay.setDate(day.getDate() + 1);
+    Incident.aggregate([
+        {
+            $match: {
+                creation_date: {
+                    $gte: day,
+                    $lt: nextDay
+                },
+                "location.position.latitude": {
+                    $gte: parseFloat(req.body.lat_from),
+                    $lte: parseFloat(req.body.lat_to)
+                },
+                "location.position.longitude": {
+                    $gte: parseFloat(req.body.long_from),
+                    $lte: parseFloat(req.body.long_to)
+                }
+            }
+        },
+        {
+            $group: 
+            {
+                _id: {"type": "$type"}, 
+                count: {$sum:1}
+            }
+        }, 
+        {
+            $sort:{"count": -1}
+        },
+        {
+            $limit: 1
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query7 = function (req, res) {
+    var day = new Date(req.body.date);
+    var nextDay = new Date(day);
+    nextDay.setDate(day.getDate() + 1);
+    Incident.aggregate([
+        {
+            $addFields: {
+                upvotes_size: {
+                    $size: "$upvotes"
+                }
+            }
+        },
+        {
+            $match: {
+                creation_date: {
+                    $gte: day,
+                    $lt: nextDay
+                }
+            }
+        },
+        {
+            $sort:{upvotes_size: -1}
+        },
+        {
+            $limit: 50
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query8 = function (req, res) {
+    Incident.aggregate([
+        {
+            $unwind: "$upvotes"
+        },
+        {
+            $group: 
+            {
+                _id: {
+                    name: "$upvotes.name",
+                    phone: "$upvotes.phone",
+                    address: "$upvotes.address"
+                },
+                count: {$sum:1}
+            }
+        },
+        {
+            $sort:{count: -1}
+        },
+        {
+            $limit: 50
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query9 = function (req, res) {
+    Incident.aggregate([
+        {
+            $unwind: "$upvotes"
+        },
+        {
+            $group: 
+            {
+                _id: {
+                    ward: "$authority.ward", 
+                    name: "$upvotes.name",
+                    phone: "$upvotes.phone",
+                    address: "$upvotes.address"
+
+                },
+                count: {$sum:1}
+            }
+        },
+        {
+            $sort:{count: -1}
+        },
+        {
+            $limit: 50
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query10 = function (req, res) {
+    Incident.aggregate([
+        {
+            $unwind: "$upvotes"
+        },
+        {
+            $group: 
+            {
+                _id: {
+                    ward: "$authority.ward", 
+                    user: "$upvotes._id"
+                },
+                count: {$sum:1}
+            }
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            incidents: incidents
+        });
+    });
+};
+
+exports.query11 = function (req, res) {
+    Incident.aggregate([
+        {
+            $unwind: "$upvotes"
+        },
+        {
+            $match: {
+                "upvotes.name" : req.body.name
+            }
+        }, 
+        {
+            $project: {
+                "authority.ward": 1,
+                _id: 0
+            }
+        }
+    ], function (err, incidents) {
+        if (err)
+            res.send(err);
+        res.json({
+            status: "success",
+            message: "Retrieved data",
+            name: req.body.name,
+            incidents: incidents
+        });
+    });
+};
