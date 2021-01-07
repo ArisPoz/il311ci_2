@@ -1,3 +1,5 @@
+const { name } = require('faker');
+
 // Import incident model
 Incident = require('../models/incidentModel');
 
@@ -121,7 +123,7 @@ exports.vote = function (req, res) {
         address: req.body.address
     }
 
-    Incident.findOneAndUpdate({_id: req.params.id}, {$push: {upvotes: upvoter}}, 
+    Incident.findOneAndUpdate({_id: req.params.id}, {$addToSet: {upvotes: upvoter}}, 
         function (err, incident) {
             incident.save(function (err) {
             if (err)
@@ -452,15 +454,45 @@ exports.query10 = function (req, res) {
     Incident.aggregate([
         {
             $unwind: "$upvotes"
-        },
+        }, 
         {
             $group: 
             {
-                _id: {
-                    ward: "$authority.ward", 
-                    user: "$upvotes._id"
+                _id: {phone: "$upvotes.phone"},
+                name_arr: {$addToSet: "$upvotes.name"},
+                id_arr: {$addToSet: "$upvotes._id"}
+            }
+        },
+        {
+            $project: {
+                id_arr: {
+                    $cond: {
+                        if: {
+                            $gt: [{$size: "$name_arr"}, 1]
+                        }, then: "$id_arr", else: null
+                    }
                 },
-                count: {$sum:1}
+                name_arr: {
+                    $cond: {
+                        if: {
+                            $gt: [{$size: "$name_arr"}, 1]
+                        }, then: "$name_arr", else: null
+                    }
+                }
+            }
+        },
+        {
+            $redact: {
+                $cond: {
+                    if: { $eq: [ "$name_arr", null ] },
+                    then: '$$PRUNE',
+                    else: '$$DESCEND'
+                }
+            }
+        },
+        {
+            $sort: {
+                name_arr: -1
             }
         }
     ], function (err, incidents) {
