@@ -32,9 +32,9 @@ router.post('/query4', incidnetController.query4);
 router.post('/query5', incidnetController.query5);
 router.post('/query6', incidnetController.query6);
 router.post('/query7', incidnetController.query7);
-router.post('/query8', incidnetController.query8);
-router.post('/query9', incidnetController.query9);
-router.post('/query10', incidnetController.query10);
+router.get('/query8', incidnetController.query8);
+router.get('/query9', incidnetController.query9);
+router.get('/query10', incidnetController.query10);
 router.post('/query11', incidnetController.query11);
 
 module.exports = router;

@@ -40,9 +40,9 @@ const persist = function(file) {
         incident.type = row["Type of Service Request"];
         incident.location.street_address = row["Street Address"];
 
-        if (typeof row["Zip Code"] !== 'undefined') {
+        if (typeof row["Zip Code"] !== undefined) {
             incident.location.zip_code = row["Zip Code"];
-        } else if (typeof row["ZIP"] !== 'undefined') {
+        } else if (typeof row["ZIP"] !== undefined) {
             incident.location.zip_code = row["ZIP"];
         } else {
             incident.location.zip_code = '-';

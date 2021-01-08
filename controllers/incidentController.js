@@ -175,7 +175,7 @@ exports.query2 = function (req, res) {
                 type: req.body.type,
                 creation_date: {
                     $gte: new Date(req.body.date_from),
-                    $lte: new Date(req.body.date_to)
+                    $lt: new Date(req.body.date_to)
                 }
             }
         },
@@ -252,7 +252,7 @@ exports.query4 = function (req, res) {
             }
         }, 
         {
-            $sort:{"_id": 1}
+            $sort:{count: -1}
         },
         {
             $limit: 3
