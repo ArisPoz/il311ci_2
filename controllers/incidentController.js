@@ -282,12 +282,11 @@ exports.query5 = function (req, res) {
             $group: 
             {
                 _id: {"type": "$type"}, 
-                average: {$avg: { $subtract: [{$ifNull:["$completion_date",0]}, 
-                {$ifNull:["$creation_date",0]}]}}
+                average: { $avg : {"$subtract": [ "$completion_date", "$creation_date" ]} } 
             }
         }, 
         {
-            $sort:{"_id": -1}
+            $sort:{average: 1}
         }
     ], function (err, incidents) {
         if (err)
