@@ -221,7 +221,7 @@ exports.query3 = function (req, res) {
             }
         }, 
         {
-            $sort:{"_id": -1}
+            $sort:{count: -1}
         },
         {
             $limit: 3

@@ -23,7 +23,7 @@ var incident;
 
 const persist = function(file) {
     var batch = [];
-
+    console.log('Importing file: %s', file);
     fs.createReadStream(file)
     .on('error', (er) => {
         // handle error
@@ -40,12 +40,11 @@ const persist = function(file) {
         incident.type = row["Type of Service Request"];
         incident.location.street_address = row["Street Address"];
 
-        if (typeof row["Zip Code"] !== undefined) {
-            incident.location.zip_code = row["Zip Code"];
-        } else if (typeof row["ZIP"] !== undefined) {
+        if (row["ZIP Code"]) {
+            incident.location.zip_code = row["ZIP Code"];
+        } 
+        if (row["ZIP"]) {
             incident.location.zip_code = row["ZIP"];
-        } else {
-            incident.location.zip_code = '-';
         }
 
         incident.location.coordinates.x = row["X Coordinate"];
@@ -83,7 +82,6 @@ const persist = function(file) {
 
         if(batch.length == 250000) {
             Incident.collection.insertMany(batch);
-            console.info('From file: %s', file);
             console.info('Successfuly inserted %d incidents.', batch.length);
             console.info('proceeds...');
             batch = [];
