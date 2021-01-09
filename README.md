@@ -5,6 +5,14 @@
 * ExpressJs
 * MongoDB
 
+Endpoints:
+
+•  Create new incident:   (POST) /api/incidents/
+•  Get by id:             (GET) /api/incidents/
+•  Update an incident:    (PUT/PATCH) /api/incidents/:id
+•  Delete an incident:    (DELETE) /api/incidents/:id
+•  Vote for an incident:  (POST) /api/incidents/vote/:id
+
 
 # il311ci
 With Java, SpringBoot and SQL Database (PostgreSQL)
